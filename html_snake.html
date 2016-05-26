@@ -1,0 +1,360 @@
+<!doctype html>
+<html>
+<head>
+<style ="text/css">
+	//#display{position:absolute; left:20%;top:20%;}
+	td{width:25px; height: 25px;background-color: #000000;}
+	.direction{width:95px; height:95px; font-size: 64px;
+		background-color:#000000;color:#FFFFFF; 
+		text-align: center; vertical-align: middle;}
+	#emptySpace{background-color: #FFFFFF;}
+</style>
+<script type = "text/javascript">
+
+var tile = new Array(10);
+var direction = 0;
+/*0 = right, 1 = up, 2 = left, 3 = down*/
+var firstTime = 1;
+var refresh = 0;
+var movement = 0;
+
+var headRow = 6;
+var headCol = 6;
+var length = 1;
+var gridHeight = 11;
+var gridWidth = 11;
+
+function newGame(){
+	gameOver();
+	startingPoints();
+}
+
+function startingPoints(){
+	document.getElementById("notification").innerHTML = "";
+	headRow = 5;
+	headCol = 5;
+	length = 1;
+	direction = 0;
+
+	for(var itt = 0; itt < gridWidth; itt++){
+		tile[itt] = new Array(gridHeight);	
+	}
+	var row = 0;
+	var col = 0;
+	for(row = 0; row <gridHeight; row++){
+		for(col = 0; col<gridWidth; col++){
+			if(col == headRow && row == headCol){
+				tile[row][col] = 1;
+			}else{ 
+				tile[row][col] = 0;
+			}
+		}
+	}
+	newFood();
+	draw();
+	start();
+}
+
+function start(){
+	refresh = setInterval(function(){draw()}, 60);	
+	movement = setInterval(function(){move()}, 300);
+}
+
+function draw(){
+	var row = 0;
+	var col = 0;
+	for(row = 0; row <gridHeight; row++){
+		for(col = 0; col<gridWidth; col++){
+			var curr = document.getElementById(row*gridHeight+col);
+			if(tile[row][col] >0){
+				if(col == headCol && row == headRow){
+					curr.style.backgroundColor = "#FFD809";
+				}else{
+					curr.style.backgroundColor = "#FF0000";
+				}
+			}else if(tile[row][col] == -1){
+				curr.style.backgroundColor = "#00FF00";
+			}else{
+				curr.style.backgroundColor = "#000000";
+			}
+		}
+	}
+	document.getElementById("score").innerHTML = "Score: " + length;	
+}
+
+function move(){
+	var row = 0;
+	var col = 0;
+	for(row = 0; row <gridHeight; row++){
+		for(col = 0; col<gridWidth; col++){
+			if(tile[row][col] > 0){
+				tile[row][col]--;
+			}
+		}
+	}	
+	if(direction == 0){
+		if(headCol == gridWidth-1){
+			headCol = 0;
+		}else{
+			headCol++;
+		}
+	}else if(direction == 1){
+		if(headRow == 0){
+			headRow = gridHeight-1;
+		}else{
+			headRow--;
+		}		
+	}else if(direction == 2){
+		if(headCol == 0){
+			headCol = gridWidth-1;
+		}else{
+		 	headCol--;
+		}
+	}else if(direction == 3){
+		if(headRow == gridHeight-1){
+			headRow = 0;
+		}else{
+			headRow++;
+		}
+	}
+	if(tile[headRow][headCol] > 0){
+		gameOver();
+	}
+	if(tile[headRow][headCol] == -1){
+		feed();
+	}
+	tile[headRow][headCol] = length;
+	
+}
+
+function feed(){
+	for(var row = 0; row <gridHeight; row++){
+		for(var col = 0; col<gridWidth; col++){
+			if(tile[row][col] > 0){
+				tile[row][col]++;
+			}
+		}
+	}
+	length++	
+	newFood();
+}
+
+function newFood(){
+	do{
+		var newRow = Math.floor(Math.random()*gridHeight);
+		var newCol = Math.floor(Math.random()*gridWidth);
+	}while(tile[newRow][newCol] != 0);
+	tile[newRow][newCol] = -1;
+}
+
+function gameOver(){
+	clearInterval(refresh);
+	clearInterval(movement);
+	document.getElementById("notification").innerHTML = "GAME OVER";
+}	
+
+function changeDirection(e){
+	var keychar = e.which;
+	if(keychar == 68){
+		direction = 0;
+	}else if(keychar == 87){
+		direction = 1;
+	}else if(keychar == 65){
+		direction = 2;
+	}else if(keychar == 83){
+		direction = 3;
+	}else if(keychar == 82){
+		newGame();
+	}
+}
+
+function redirect(dir){
+	direction = dir;
+}
+
+</script>
+</head>
+
+<body onload = "startingPoints()" onkeydown = "changeDirection(event)">
+<table id = "display" border ="1">
+	<tr>
+		<td id = "0"></td>
+		<td id = "1"></td>
+		<td id = "2"></td>
+		<td id = "3"></td>
+		<td id = "4"></td>
+		<td id = "5"></td>
+		<td id = "6"></td>
+		<td id = "7"></td>
+		<td id = "8"></td>
+		<td id = "9"></td>
+		<td id = "10"></td>
+
+	</tr>
+	<tr>
+		<td id = "11"></td>
+		<td id = "12"></td>
+		<td id = "13"></td>
+		<td id = "14"></td>
+		<td id = "15"></td>
+		<td id = "16"></td>
+		<td id = "17"></td>
+		<td id = "18"></td>
+		<td id = "19"></td>
+		<td id = "20"></td>
+		<td id = "21"></td>
+
+	</tr>
+	<tr>
+		<td id = "22"></td>
+		<td id = "23"></td>
+		<td id = "24"></td>
+		<td id = "25"></td>
+		<td id = "26"></td>
+		<td id = "27"></td>
+		<td id = "28"></td>
+		<td id = "29"></td>
+		<td id = "30"></td>
+		<td id = "31"></td>
+		<td id = "32"></td>
+	</tr>
+	<tr>
+		<td id = "33"></td>
+		<td id = "34"></td>
+		<td id = "35"></td>
+		<td id = "36"></td>
+		<td id = "37"></td>
+		<td id = "38"></td>
+		<td id = "39"></td>
+		<td id = "40"></td>
+		<td id = "41"></td>
+		<td id = "42"></td>
+		<td id = "43"></td>
+	</tr>
+	<tr>
+		<td id = "44"></td>
+		<td id = "45"></td>
+		<td id = "46"></td>
+		<td id = "47"></td>
+		<td id = "48"></td>
+		<td id = "49"></td>
+		<td id = "50"></td>
+		<td id = "51"></td>
+		<td id = "52"></td>
+		<td id = "53"></td>
+		<td id = "54"></td>
+	</tr>
+	<tr>
+		<td id = "55"></td>
+		<td id = "56"></td>
+		<td id = "57"></td>
+		<td id = "58"></td>
+		<td id = "59"></td>
+		<td id = "60"></td>
+		<td id = "61"></td>
+		<td id = "62"></td>
+		<td id = "63"></td>
+		<td id = "64"></td>
+		<td id = "65"></td>
+	</tr>
+	<tr>
+		<td id = "66"></td>
+		<td id = "67"></td>
+		<td id = "68"></td>
+		<td id = "69"></td>
+		<td id = "70"></td>
+		<td id = "71"></td>
+		<td id = "72"></td>
+		<td id = "73"></td>
+		<td id = "74"></td>
+		<td id = "75"></td>
+		<td id = "76"></td>
+	</tr>
+	<tr>
+		<td id = "77"></td>
+		<td id = "78"></td>
+		<td id = "79"></td>
+		<td id = "80"></td>
+		<td id = "81"></td>
+		<td id = "82"></td>
+		<td id = "83"></td>
+		<td id = "84"></td>
+		<td id = "85"></td>
+		<td id = "86"></td>
+		<td id = "87"></td>
+	</tr>
+	<tr>
+		<td id = "88"></td>
+		<td id = "89"></td>
+		<td id = "90"></td>
+		<td id = "91"></td>
+		<td id = "92"></td>
+		<td id = "93"></td>
+		<td id = "94"></td>
+		<td id = "95"></td>
+		<td id = "96"></td>
+		<td id = "97"></td>
+		<td id = "98"></td>
+	</tr>
+	<tr>
+		<td id = "99"></td>
+		<td id = "100"></td>
+		<td id = "101"></td>
+		<td id = "102"></td>
+		<td id = "103"></td>
+		<td id = "104"></td>
+		<td id = "105"></td>
+		<td id = "106"></td>
+		<td id = "107"></td>
+		<td id = "108"></td>
+		<td id = "109"></td>
+	</tr>
+	<tr>
+		<td id = "110"></td>
+		<td id = "111"></td>
+		<td id = "112"></td>
+		<td id = "113"></td>
+		<td id = "114"></td>
+		<td id = "115"></td>
+		<td id = "116"></td>
+		<td id = "117"></td>
+		<td id = "118"></td>
+		<td id = "119"></td>
+		<td id = "120"></td>
+	</tr>
+</table>
+<button type = "button" onclick = "newGame()" alt = "Hotkey: (r)">New Game</button>
+<p id = "score"></p>
+
+<table>
+	<tr>
+		<td id = "emptySpace"></td>
+		
+		<td onmousedown = "redirect(1)"  class = "direction">
+		^	
+		</td>
+		
+	</tr>
+	<tr>
+		<td onmousedown = "redirect(2)"  class = "direction">
+		<	
+		</td>
+	
+		<td onmousedown = "redirect(3)"  class = "direction">
+		V	
+		</td>
+	
+		<td onmousedown = "redirect(0)"  class = "direction">	
+		>	
+		</td>
+	
+	</tr>
+</table>
+
+<p>Controls:</p>
+<p>(WASD) Change Direction</p>
+<p>(R) Start New Game</p>
+<p id = "notification"></p>
+
+</body>
+</html>
