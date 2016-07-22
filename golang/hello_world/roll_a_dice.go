@@ -52,5 +52,3 @@ func get_number(upper int) int {
   var number = random.Intn(upper) + 1
   return number
 }
-
-fu
