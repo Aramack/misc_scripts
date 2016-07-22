@@ -28,7 +28,7 @@ func main() {
       for i := 0; i < number_of_dice; i++ {
         roll := get_number(sides_of_the_dice)
         total += roll
-		fmt.Println(roll)
+        fmt.Println(roll)
       }
       var buffer bytes.Buffer
       buffer.WriteString("Total: ")
@@ -52,3 +52,5 @@ func get_number(upper int) int {
   var number = random.Intn(upper) + 1
   return number
 }
+
+fu
