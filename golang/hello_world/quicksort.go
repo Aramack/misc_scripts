@@ -20,7 +20,7 @@ func populate_array(size int, upper int) []int{
 
 func main(){
   //Generate a unsorted array
-  unsorted_array := populate_array(10000, 10000)
+  unsorted_array := populate_array(1000000, 1000000)
   
   //Single threaded recursice quick sort
   start_single_thread := time.Now()
@@ -28,7 +28,7 @@ func main(){
   fmt.Println("Single Thread: " + time.Since(start_single_thread).String())
   
   //Multi threaded go routine quick sort  
-  for i := 1; i < 5; i++  {
+  for i := 1; i <= 10; i++  {
     start_go_routine := time.Now()
     result_chan := make(chan []int)
     go pivot_go_routine(unsorted_array, result_chan, i)
@@ -43,7 +43,7 @@ func pivot(unsorted_array []int) []int{
   if (len(unsorted_array) <= 1) {
     return unsorted_array
   }
-  
+
   pivot_number := unsorted_array[len(unsorted_array)-1]
   var less_than_pivot = []int{}
   var greater_than_pivot = []int{}
@@ -63,12 +63,15 @@ func pivot(unsorted_array []int) []int{
   return sorted_slice
  }
  
- func pivot_go_routine(unsorted_array []int, return_chan chan []int, max_goroutine_depth int) {
+func pivot_go_routine(unsorted_array []int, return_chan chan []int, max_goroutine_depth int) {
   max_goroutine_depth = max_goroutine_depth - 1
   if (len(unsorted_array) <= 1) {
     return_chan <- unsorted_array
+    close(return_chan)
+    return
   }
-  
+
+  //fmt.Println(unsorted_array)
   pivot_number := unsorted_array[len(unsorted_array)-1]
   var less_than_pivot = []int{}
   var greater_than_pivot = []int{}
