@@ -8,20 +8,19 @@ import (
   "net/http/httputil"
   "net/url"
   "strings"
+  "io/ioutil"
 )
 
 func http_get() {
   req := &http.Request{
           Method: "GET",
-          Host:   "https://example.com/",
           URL: &url.URL{
-            Host:   "ignored",
+            Host:   "https://example.com/",
             Scheme: "https",
-            Opaque: "/%2f/",
-        },
-    	Header: http.Header{
-          "User-Agent": {"Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.116 Safari/537.36"},
-        },
+          },
+    	  Header: http.Header{
+            "User-Agent": {"Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.116 Safari/537.36"},
+          },
     }
     out, err := httputil.DumpRequestOut(req, true)
     if err != nil {
@@ -30,6 +29,13 @@ func http_get() {
     fmt.Println(strings.Replace(string(out), "\r", "", -1))
 }
 
+func http_get_2() {
+  resp, _ := http.Get("http://example.com/")
+  defer resp.Body.Close()
+  body, _ := ioutil.ReadAll(resp.Body)
+  fmt.Println(body)
+}
+
 func main() {
-  http_get();
+  http_get_2();
 }
