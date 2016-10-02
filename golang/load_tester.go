@@ -20,7 +20,8 @@ func http_get(url string) {
   client := &http.Client{
     Timeout: time.Second * 30,
   }
-  client.Do(request)
+  resp, err := client.Do(request)
+  resp.Body.Close()
 }
 
 func http_get_2() {
@@ -30,7 +31,19 @@ func http_get_2() {
   fmt.Println(body)
 }
 
+func http_request_worker(url_chan <-chan string) {
+  
+  
+  url := <-url_chan
+  http_get(url)
+  
+
+}
+
 func main() {
   //http_get_2();
-  http_get("http://www.example.com")
+  url_chan := make(chan string)
+  go http_request_worker(url_chan)
+  url_chan <- "http://www.example.com" 
+  
 }
