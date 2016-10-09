@@ -4,9 +4,9 @@ package main
 import (
   "fmt"
   "net/http"
-  "io/ioutil"
   "time"
 )
+
 
 func http_get(url string) {
   request , err := http.NewRequest(
@@ -24,26 +24,36 @@ func http_get(url string) {
   resp.Body.Close()
 }
 
-func http_get_2() {
-  resp, _ := http.Get("http://example.com/")
-  defer resp.Body.Close()
-  body, _ := ioutil.ReadAll(resp.Body)
-  fmt.Println(body)
+func http_request_worker(url_chan <-chan string) {
+  for {
+    url := <-url_chan
+    http_get(url)
+	fmt.Println("one request finished")
+  }
 }
 
-func http_request_worker(url_chan <-chan string) {
-  
-  
-  url := <-url_chan
-  http_get(url)
-  
-
+func http_load_balancer(url_chan <-chan string, worker_pool_size int) {
+  //create workers
+  var worker_channels = make([]chan string, worker_pool_size)
+  for i := range worker_channels {
+    worker_channels[i] = make(chan string)
+  }
+  for i := 0; i < worker_pool_size; i++{
+    go http_request_worker(worker_channels[i])
+  }
+  for {
+    for _,worker_channel := range worker_channels {
+	  url := <- url_chan 
+	  worker_channel <- url
+	}
+  }
 }
 
 func main() {
-  //http_get_2();
-  url_chan := make(chan string)
-  go http_request_worker(url_chan)
-  url_chan <- "http://www.example.com" 
-  
+  load_balancer_channel := make(chan string)
+  go http_load_balancer(load_balancer_channel, 1)
+  for i := 49; i < 60; i++{
+    load_balancer_channel <- "http://www.example.com" 
+  }
+  fmt.Println("Main thread finished")
 }
