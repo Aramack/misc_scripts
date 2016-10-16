@@ -5,6 +5,8 @@ import (
   "fmt"
   "net/http"
   "time"
+  "os"
+  "bufio"
 )
 
 
@@ -49,11 +51,30 @@ func http_load_balancer(url_chan <-chan string, worker_pool_size int) {
   }
 }
 
+func read_url_source(raw_url_chan chan<- string, file_path string) {
+  file_handle, _ := os.Open(file_path)
+  reader := bufio.NewScanner(file_handle)
+  reader.Split(bufio.ScanLines)
+  
+  for reader.Scan() {
+    raw_url_chan <- reader.Text()
+  }
+  // raw_url, _ := file_handle.ReadString('\n');
+  
+  
+}
+
+
 func main() {
   load_balancer_channel := make(chan string)
   go http_load_balancer(load_balancer_channel, 1)
-  for i := 49; i < 60; i++{
-    load_balancer_channel <- "http://www.example.com" 
+
+  raw_url_chan := make(chan string)  
+  go read_url_source(raw_url_chan, "/tmp/test_url")
+  
+  for {
+    raw_url := <- raw_url_chan
+    load_balancer_channel <- raw_url
   }
   fmt.Println("Main thread finished")
 }
