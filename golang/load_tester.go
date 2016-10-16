@@ -28,7 +28,7 @@ func http_request_worker(url_chan <-chan string) {
   for {
     url := <-url_chan
     http_get(url)
-	fmt.Println("one request finished")
+    fmt.Println("one request finished: " + url)
   }
 }
 
@@ -43,9 +43,9 @@ func http_load_balancer(url_chan <-chan string, worker_pool_size int) {
   }
   for {
     for _,worker_channel := range worker_channels {
-	  url := <- url_chan 
-	  worker_channel <- url
-	}
+      url := <- url_chan 
+      worker_channel <- url
+    }
   }
 }
 
