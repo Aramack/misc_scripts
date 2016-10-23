@@ -51,7 +51,10 @@ func http_load_balancer(url_chan <-chan string, worker_pool_size int) {
   }
 }
 
-func read_url_source(raw_url_chan chan<- string, file_path string) {
+func read_url_source(
+    raw_url_chan chan<- string, 
+    eof_chan chan<- bool, 
+    file_path string) {
   file_handle, _ := os.Open(file_path)
   reader := bufio.NewScanner(file_handle)
   reader.Split(bufio.ScanLines)
@@ -59,20 +62,23 @@ func read_url_source(raw_url_chan chan<- string, file_path string) {
   for reader.Scan() {
     raw_url_chan <- reader.Text()
   }
-  // raw_url, _ := file_handle.ReadString('\n');
-  
-  
+  file_handle.Close()
+  eof <- true
 }
-
 
 func main() {
   load_balancer_channel := make(chan string)
-  go http_load_balancer(load_balancer_channel, 1)
+  go http_load_balancer(load_balancer_channel, 4)
 
-  raw_url_chan := make(chan string)  
-  go read_url_source(raw_url_chan, "/tmp/test_url")
+  raw_url_chan := make(chan string)
+  eof := make(chan bool)
+  go read_url_source(raw_url_chan, eof, "/tmp/test_url")
   
   for {
+    is_eof <- eof 
+    if (is_eof) {
+      break
+    }
     raw_url := <- raw_url_chan
     load_balancer_channel <- raw_url
   }
