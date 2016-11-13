@@ -34,19 +34,27 @@ func http_request_worker(url_chan <-chan string) {
   }
 }
 
-func http_load_balancer(url_chan <-chan string, worker_pool_size int) {
+func http_load_balancer(
+    url_chan <-chan string, 
+    finished_chan chan<- bool,
+    worker_pool_size int) {
   //create workers
   var worker_channels = make([]chan string, worker_pool_size)
   for i := range worker_channels {
     worker_channels[i] = make(chan string)
   }
-  for i := 0; i < worker_pool_size; i++{
-    go http_request_worker(worker_channels[i])
+  for _, worker_channel := range worker_channels{
+    go http_request_worker(worker_channel)
   }
   for {
     for _,worker_channel := range worker_channels {
-      url := <- url_chan 
-      worker_channel <- url
+      url, more := <- url_chan
+      if more {
+        worker_channel <- url
+      } else {
+        finished_chan <- true
+        return
+      }
     }
   }
 }
@@ -65,9 +73,11 @@ func read_url_source(raw_url_chan chan<- string, file_path string) {
 
 func main() {
   load_balancer_channel := make(chan string)
-  go http_load_balancer(load_balancer_channel, 4)
+  finished_chan := make(chan bool)
+  go http_load_balancer(load_balancer_channel, finished_chan, 4)
 
   raw_url_chan := make(chan string)
+  
   go read_url_source(raw_url_chan, "/tmp/test_url")
   
   for {
@@ -75,8 +85,10 @@ func main() {
     if more {
       load_balancer_channel <- raw_url
     } else {
+      close(load_balancer_channel)
       break
     }
   }
+  <-finished_chan
   fmt.Println("Main thread finished")
 }
