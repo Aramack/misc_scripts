@@ -26,11 +26,16 @@ func http_get(url string) {
   resp.Body.Close()
 }
 
-func http_request_worker(url_chan <-chan string) {
+func http_request_worker(url_chan <-chan string, finished_chan chan<- bool) {
   for {
-    url := <-url_chan
-    http_get(url)
-    fmt.Println("one request finished: " + url)
+    url, more := <-url_chan
+    if more {
+      http_get(url)
+      fmt.Println("Request finished: " + url)
+    } else {
+      finished_chan <- true
+      return
+    }
   }
 }
 
@@ -39,31 +44,42 @@ func http_load_balancer(
     finished_chan chan<- bool,
     worker_pool_size int) {
   //create workers
-  var worker_channels = make([]chan string, worker_pool_size)
-  for i := range worker_channels {
-    worker_channels[i] = make(chan string)
+  var worker_url_channels = make([]chan string, worker_pool_size)
+  var worker_finished_channels = make([]chan bool, worker_pool_size)
+  
+  for i := range worker_url_channels {
+    worker_url_channels[i] = make(chan string)
+    worker_finished_channels[i] = make(chan bool)
   }
-  for _, worker_channel := range worker_channels{
-    go http_request_worker(worker_channel)
+  for index, worker_url_channel := range worker_url_channels{
+    go http_request_worker(worker_url_channel, worker_finished_channels[index])
   }
+  
   for {
-    for _,worker_channel := range worker_channels {
+    more_urls := true
+    for _, worker_url_channel := range worker_url_channels {
       url, more := <- url_chan
       if more {
-        worker_channel <- url
+        worker_url_channel <- url
       } else {
-        finished_chan <- true
-        return
+        more_urls = more
       }
     }
+    if !more_urls {
+      break
+    }
   }
+  for index, worker_finished_channel := range worker_finished_channels {
+    close(worker_url_channels[index])
+    <-worker_finished_channel
+  }
+  finished_chan <- true
 }
 
 func read_url_source(raw_url_chan chan<- string, file_path string) {
   file_handle, _ := os.Open(file_path)
   reader := bufio.NewScanner(file_handle)
   reader.Split(bufio.ScanLines)
-  
   for reader.Scan() {
     raw_url_chan <- reader.Text()
   }
