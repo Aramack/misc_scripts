@@ -55,8 +55,8 @@ func http_load_balancer(
     go http_request_worker(worker_url_channel, worker_finished_channels[index])
   }
   
-  for {
-    more_urls := true
+  more_urls := true
+  for more_urls{
     for _, worker_url_channel := range worker_url_channels {
       url, more := <- url_chan
       if more {
@@ -64,9 +64,6 @@ func http_load_balancer(
       } else {
         more_urls = more
       }
-    }
-    if !more_urls {
-      break
     }
   }
   for index, worker_finished_channel := range worker_finished_channels {
