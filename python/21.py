@@ -1,4 +1,5 @@
 from enum import Enum
+import random
 
 class Suit(Enum):
   CLUB = 1
@@ -25,7 +26,22 @@ class Card(object):
   def __init__ (self, rank, suit):
     self.rank = rank
     self.suit = rank
+
+class Deck(object):
+  cards = []
+  
+  def __init__ (self):
+    for rank in Rank:
+      for suit in Suit:
+        cards.append(Card(rank, suit))
+        
+  def shuffle (self):
+    random.shuffle(cards)
     
+  def draw_card(self):
+    return cards.pop(0)
+        
     
-a = Card(Suit.CLUB, Rank.ACE)
-print(a.rank)
+deck = Deck()
+deck.shuffle();
+print(deck.draw_card());
