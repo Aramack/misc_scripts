@@ -15,9 +15,9 @@ class Rank(Enum):
   EIGHT = 8
   NINE = 9
   TEN = 10
-  JACK = 11
-  QUEEN = 12
-  KING = 13
+  JACK = 10
+  QUEEN = 10
+  KING = 10
  
 class Card(object):  
   def __init__ (self, rank, suit):
@@ -36,10 +36,30 @@ class Deck(object):
     random.shuffle(self.cards)
     
   def draw_card(self):
-    return self.cards.pop(0)
-        
+    return self.cards.pop(0)       
+
+class Player(object):
+  cards=[]
+  dealer=False
+  name=''
+  
+  def __init__ (self,name,dealer=False):
+    self.name = name
+    self.dealer = dealer
+   
+  def add_to_hand (self, card):
+    self.cards.append(card)
+  
+  def get_current_hand(self):
+    return self.cards
+    
     
 deck = Deck()
 deck.shuffle()
-print(deck.draw_card().rank)
-print(deck.draw_card().rank)
+
+p1=Player('ME')
+dealer=Player('Dealer', True)
+p1.add_to_hand(deck.draw_card())
+
+print(p1.get_current_hand()[0].rank)
+
