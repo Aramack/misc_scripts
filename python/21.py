@@ -51,6 +51,12 @@ class Player(object):
   
   def get_current_hand(self):
     return self.hand
+  
+  def hand_value(self):
+    total = 0
+    for card in self.hand:
+      total += Rank[card.rank]
+    return total
 
 # Instantiate the deck:
 deck = Deck()
@@ -72,9 +78,15 @@ for player in players:
     print(player.name + ' hand:')
     for card in player.get_current_hand():
       print(card)
-    action = raw_input('Hit, Stay: ')
+    action = raw_input('(H)it, (S)tay: ')
     if(action == 'H'):
-      player.add_to_hand(deck.draw_card())
+      card  = deck.draw_card()
+      print('Player ' + player.name + ' was dealt a ' + str(card))
+      player.add_to_hand(card)
+      total = player.hand_value()
+      print('Total: ' + str(total))
+      if total >= 21:
+        stay = True;
     elif(action == 'S'):
       stay = True
     else:
