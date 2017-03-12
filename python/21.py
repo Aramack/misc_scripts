@@ -40,12 +40,9 @@ class Deck(object):
   def draw_card(self):
     return self.cards.pop(0)       
 
-class Player(object):
-  hand=[]
-  dealer=False
-  name=''
-  
+class Player(object):  
   def __init__ (self,name,dealer=False):
+    self.hand=[]
     self.name = name
     self.dealer = dealer
    
@@ -54,17 +51,35 @@ class Player(object):
   
   def get_current_hand(self):
     return self.hand
-    
-    
+
+# Instantiate the deck:
 deck = Deck()
 deck.shuffle()
 
-p1=Player('ME')
-dealer=Player('Dealer', True)
-p1.add_to_hand(deck.draw_card())
-dealer.add_to_hand(deck.draw_card())
-p1.add_to_hand(deck.draw_card())
-dealer.add_to_hand(deck.draw_card())
+# Create the players:
+players = []
+players.append(Player('ME'))
+players.append(Player('Dealer', True))
 
-print(p1.get_current_hand()[0])
+# Deal initial hands:
+for player in players:
+  for itt in range(0,2):
+    player.add_to_hand(deck.draw_card())
+ 
+for player in players:
+  stay = False
+  while not stay:
+    print(player.name + ' hand:')
+    for card in player.get_current_hand():
+      print(card)
+    action = raw_input('Hit, Stay: ')
+    if(action == 'H'):
+      player.add_to_hand(deck.draw_card())
+    elif(action == 'S'):
+      stay = True
+    else:
+      print('Unknown action')
+  
+
+
 
