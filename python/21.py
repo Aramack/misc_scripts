@@ -58,6 +58,12 @@ class Player(object):
       total += Rank[card.rank]
     return total
 
+def dealer_turn(dealer, deck):
+  while (dealer.hand_value() < 16):
+    card = deck.draw_card()
+    player.add_to_hand(card)
+    print('Player ' + player.name + ' was dealt a ' + str(card))
+
 # Instantiate the deck:
 deck = Deck()
 deck.shuffle()
@@ -74,6 +80,10 @@ for player in players:
  
 for player in players:
   stay = False
+  if (player.dealer):
+    dealer_turn(player, deck)
+    stay = True
+    
   while not stay:
     print(player.name + ' hand:')
     for card in player.get_current_hand():
@@ -85,13 +95,16 @@ for player in players:
       player.add_to_hand(card)
       total = player.hand_value()
       print('Total: ' + str(total))
-      if total >= 21:
-        stay = True;
+      if (total > 21):
+        print('Bust')
+        stay = True        
     elif(action == 'S'):
       stay = True
     else:
       print('Unknown action')
-  
+
+    
+
 
 
 
