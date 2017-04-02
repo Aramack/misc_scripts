@@ -126,11 +126,12 @@ print(str(dealer.hidden_card))
 for card in dealer.get_current_hand():
   print(str(card))
 dealers_total = dealer.hand_value()
+dealer_bust = dealers_total > 21;
 print('Total: ' + str(dealers_total))
 
 for player in players:
   player_total = player.hand_value()
-  if player_total > dealers_total:
+  if player_total > dealers_total or dealer_bust:
     print('Player ' + player.name + ': Winner')
   elif player_total == dealers_total:
     print('Player ' + player.name + ': Push')
