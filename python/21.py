@@ -133,6 +133,8 @@ for player in players:
   player_total = player.hand_value()
   if player_total > dealers_total or dealer_bust:
     print('Player ' + player.name + ': Winner')
+  elif player_total > 21:
+    print('Player ' + player.name + ': Bust')
   elif player_total == dealers_total:
     print('Player ' + player.name + ': Push')
   elif player_total < dealers_total:
