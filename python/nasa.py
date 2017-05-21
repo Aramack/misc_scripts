@@ -14,13 +14,13 @@ class nasa_request(object):
       request_params = {}
     ):
     curl = pycurl.Curl()
-    curl.setopt(curl.URL, url)
     if http_request_type == 'GET':
       for key, value in request_params.iteritems():
-        url += key + '&' + value 
+        url += '&' + key + '=' + value 
     elif http_request_type == 'POST':
       curl.setopt(pycurl.POST, 1)
       curl.setopt(curl.POSTFIELDS, json.dump(request_params))
+    curl.setopt(curl.URL, url)
     response = StringIO()
     curl.setopt(curl.WRITEFUNCTION, response.write)
     curl.perform()
